@@ -1,18 +1,14 @@
 
 define(["app/server", "templates/index"], function(server, indexTempl) {
   return {
-    init: function() {
-      return this.emit('ready');
-    },
     show: function() {
       return server.ready(function() {
-        return server.example(function(msg) {
+        return server.getImages(function(images) {
           return $("#main").html(indexTempl({
-            message: msg
+            images: images
           }));
         });
       });
-    },
-    hide: function() {}
+    }
   };
 });

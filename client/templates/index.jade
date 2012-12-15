@@ -1,38 +1,10 @@
 .row-fluid
-
-  .span2
-    .well.sidebar-nav
-      ul.nav.nav-list
-        li.nav-header Navigation
-        li: a Test
-
-  .span10
+  .span12
     .hero-unit
-      h1 #{message}
-      p ^ This message is from the server
+      canvas#myCanvas
+      button.btn Grab
 
     .row-fluid
-      .well.span4
-        h2 Test
-        p Testing
-
-      .well.span4
-        h2 Test
-        p Testing
-
-      .well.span4
-        h2 Test
-        p Testing
-
-    .row-fluid
-      .well.span4
-        h2 Test
-        p Testing
-
-      .well.span4
-        h2 Test
-        p Testing
-
-      .well.span4
-        h2 Test
-        p Testing
+      for img in images
+        .well.span4
+          img(src="#{img}", height="450", width="360")
