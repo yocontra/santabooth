@@ -3,6 +3,7 @@ http = require 'http'
 Vein = require 'vein'
 Pulsar = require 'pulsar'
 {join} = require 'path'
+images = require './images'
 
 config = require './config'
 
@@ -18,5 +19,8 @@ rpc.addFolder join __dirname, './services'
 # Pulsar
 pulse = Pulsar.createServer server
 chan = pulse.channel 'main'
+
+chan.on 'new', (img) ->
+  images.push img
 
 console.log "Server running on #{config.port}"
