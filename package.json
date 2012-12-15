@@ -1,11 +1,11 @@
 {
-  "name":"boiler",
-  "version":"0.0.1",
-  "dependencies":{
-    "coffee-script":"*",
-    "express":"*",
-    "vein":"*",
-    "pulsar":"*"
+  "name": "holidayjs",
+  "version": "0.0.1",
+  "dependencies": {
+    "coffee-script": "*",
+    "express": "*",
+    "vein": "*",
+    "pulsar": "*"
   },
   "devDependencies": {
     "jaded": "*",
@@ -19,10 +19,11 @@
     "grunt-rm": "*",
     "grunt-smushit": "*"
   },
-  "scripts":{
-    "start":"coffee server/start.coffee"
+  "scripts": {
+    "start": "coffee server/start.coffee"
   },
   "engines": {
     "node": ">=0.6"
-  }
+  },
+  "subdomain": "holidayjs"
 }
