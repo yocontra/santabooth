@@ -1,1 +1,1 @@
-module.exports = ["http://i.imgur.com/bCcoZ.png","http://i.imgur.com/bCcoZ.png"]
+module.exports = []

@@ -1,9 +1,12 @@
 var __slice = [].slice;
 
 define(["app/server", "app/pulse", "templates/index", "templates/image"], function(server, pulse, indexTempl, imageTempl) {
-  return {
+  var o;
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+  window.URL = window.URL || window.webkitURL;
+  o = {
     show: function() {
-      var addImage, chan, img;
+      var addImage, chan, drawImage, img, takeImage;
       chan = pulse.channel('main');
       img = [];
       addImage = function() {
@@ -21,11 +24,31 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
         }
         return _results;
       };
+      takeImage = function() {
+        var canvas, uri;
+        canvas = document.getElementById("myCanvas");
+        uri = canvas.toDataURL("image/png");
+        return chan.emit('new', uri);
+      };
+      drawImage = function() {
+        var canvas, ctx, _img;
+        canvas = document.getElementById("myCanvas");
+        ctx = canvas.getContext('2d');
+        _img = new Image;
+        _img.onload = function() {
+          return ctx.drawImage(_img, 0, 0);
+        };
+        return _img.src = "img/santa.png";
+      };
       return server.ready(function() {
         return server.getImages(function(images) {
           var $container;
           img = img.concat(images);
           $("#main").html(indexTempl());
+          drawImage();
+          $("#grabButton").click(function() {
+            return takeImage();
+          });
           $container = $("#images");
           $container.isotope({
             itemSelector: '.item'
@@ -42,4 +65,5 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
       });
     }
   };
+  return o;
 });
