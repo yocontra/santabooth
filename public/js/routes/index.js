@@ -1,13 +1,24 @@
 
-define(["app/server", "templates/index"], function(server, indexTempl) {
+define(["app/server", "app/pulse", "templates/index"], function(server, pulse, indexTempl) {
   return {
     show: function() {
-      return server.ready(function() {
+      var chan, img, render;
+      chan = pulse.channel('main');
+      img = [];
+      render = function() {
+        return $("#main").html(indexTempl({
+          images: img
+        }));
+      };
+      server.ready(function() {
         return server.getImages(function(images) {
-          return $("#main").html(indexTempl({
-            images: images
-          }));
+          img = img.concat(images);
+          return render();
         });
+      });
+      return chan.on('new', function(image) {
+        img.push(image);
+        return render();
       });
     }
   };
