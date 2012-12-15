@@ -6,6 +6,19 @@ define ["app/server", "app/pulse", "templates/index", "templates/image"], (serve
     navigator.mozGetUserMedia or
     navigator.msGetUserMedia
   window.URL = window.URL or window.webkitURL
+  
+  `
+  window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function( callback ){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
+  `
 
   o = show: ->
     chan = pulse.channel 'main'
@@ -20,27 +33,38 @@ define ["app/server", "app/pulse", "templates/index", "templates/image"], (serve
           .isotope(sortBy: 'original-order')
 
 
-    takeImage = ->
-      canvas = document.getElementById "myCanvas"
-      uri = canvas.toDataURL "image/png"
-      chan.emit 'new', uri
-
-    drawImage = ->
+    drawWebcam = (stream) -> ->
+      vid = document.getElementById 'myVideo'
+      url = window.URL.createObjectURL stream
+      vid.src = url
       canvas = document.getElementById "myCanvas"
       ctx = canvas.getContext '2d'
+
+      # santa
       _img = new Image
       _img.onload = ->
         ctx.drawImage _img, 0, 0
       _img.src = "img/santa.png"
+
+
+    takeImage = ->
+      canvas = document.getElementById "myCanvas"
+      uri = canvas.toDataURL "image/png"
+      chan.emit 'new', uri
 
     server.ready ->
       server.getImages (images) ->
         img = img.concat images
         $("#main").html indexTempl()
 
-        drawImage()
-        $("#grabButton").click ->
-          takeImage()
+        $("#grabButton").click takeImage
+
+        navigator.getUserMedia
+          video: true
+        , (s) ->
+          requestAnimFrame drawWebcam s
+        , (e) -> 
+          console.log e
 
         $container = $ "#images"
         $container.isotope

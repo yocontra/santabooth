@@ -4,9 +4,22 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
   var o;
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
   window.URL = window.URL || window.webkitURL;
+  
+  window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function( callback ){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
+  ;
+
   o = {
     show: function() {
-      var addImage, chan, drawImage, img, takeImage;
+      var addImage, chan, drawWebcam, img, takeImage;
       chan = pulse.channel('main');
       img = [];
       addImage = function() {
@@ -24,30 +37,39 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
         }
         return _results;
       };
+      drawWebcam = function(stream) {
+        return function() {
+          var canvas, ctx, url, vid, _img;
+          vid = document.getElementById('myVideo');
+          url = window.URL.createObjectURL(stream);
+          vid.src = url;
+          canvas = document.getElementById("myCanvas");
+          ctx = canvas.getContext('2d');
+          _img = new Image;
+          _img.onload = function() {
+            return ctx.drawImage(_img, 0, 0);
+          };
+          return _img.src = "img/santa.png";
+        };
+      };
       takeImage = function() {
         var canvas, uri;
         canvas = document.getElementById("myCanvas");
         uri = canvas.toDataURL("image/png");
         return chan.emit('new', uri);
       };
-      drawImage = function() {
-        var canvas, ctx, _img;
-        canvas = document.getElementById("myCanvas");
-        ctx = canvas.getContext('2d');
-        _img = new Image;
-        _img.onload = function() {
-          return ctx.drawImage(_img, 0, 0);
-        };
-        return _img.src = "img/santa.png";
-      };
       return server.ready(function() {
         return server.getImages(function(images) {
           var $container;
           img = img.concat(images);
           $("#main").html(indexTempl());
-          drawImage();
-          $("#grabButton").click(function() {
-            return takeImage();
+          $("#grabButton").click(takeImage);
+          navigator.getUserMedia({
+            video: true
+          }, function(s) {
+            return requestAnimFrame(drawWebcam(s));
+          }, function(e) {
+            return console.log(e);
           });
           $container = $("#images");
           $container.isotope({
