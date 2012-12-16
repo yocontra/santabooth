@@ -24,6 +24,7 @@ define ["app/server", "app/pulse", "templates/index", "templates/image"], (serve
     chan = pulse.channel 'main'
 
     img = []
+    play = false
 
     addImage = (images...) ->
       for image in images
@@ -33,18 +34,18 @@ define ["app/server", "app/pulse", "templates/index", "templates/image"], (serve
           .isotope(sortBy: 'original-order')
 
 
-    drawWebcam = (stream) -> ->
-      vid = document.getElementById 'myVideo'
-      url = window.URL.createObjectURL stream
-      vid.src = url
-      canvas = document.getElementById "myCanvas"
-      ctx = canvas.getContext '2d'
+    drawWebcam = (vid, ctx) ->
+      requestAnimFrame ->
+        drawWebcam vid, ctx
 
       # santa
       _img = new Image
       _img.onload = ->
         ctx.drawImage _img, 0, 0
       _img.src = "img/santa.png"
+
+      # face
+      ctx.drawImage vid, (vid.width/2), (vid.height/2)-100, 200, 200, 80, 140, 100, 100
 
 
     takeImage = ->
@@ -62,7 +63,16 @@ define ["app/server", "app/pulse", "templates/index", "templates/image"], (serve
         navigator.getUserMedia
           video: true
         , (s) ->
-          requestAnimFrame drawWebcam s
+
+          vid = document.getElementById 'myVideo'
+          url = window.URL.createObjectURL s
+          vid.src = url
+
+          canvas = document.getElementById 'myCanvas'
+          ctx = canvas.getContext '2d'
+
+          drawWebcam vid, ctx, 0, 0
+
         , (e) -> 
           console.log e
 

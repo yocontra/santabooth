@@ -19,9 +19,10 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
 
   o = {
     show: function() {
-      var addImage, chan, drawWebcam, img, takeImage;
+      var addImage, chan, drawWebcam, img, play, takeImage;
       chan = pulse.channel('main');
       img = [];
+      play = false;
       addImage = function() {
         var image, images, nu, _i, _len, _results;
         images = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -37,20 +38,17 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
         }
         return _results;
       };
-      drawWebcam = function(stream) {
-        return function() {
-          var canvas, ctx, url, vid, _img;
-          vid = document.getElementById('myVideo');
-          url = window.URL.createObjectURL(stream);
-          vid.src = url;
-          canvas = document.getElementById("myCanvas");
-          ctx = canvas.getContext('2d');
-          _img = new Image;
-          _img.onload = function() {
-            return ctx.drawImage(_img, 0, 0);
-          };
-          return _img.src = "img/santa.png";
+      drawWebcam = function(vid, ctx) {
+        var _img;
+        requestAnimFrame(function() {
+          return drawWebcam(vid, ctx);
+        });
+        _img = new Image;
+        _img.onload = function() {
+          return ctx.drawImage(_img, 0, 0);
         };
+        _img.src = "img/santa.png";
+        return ctx.drawImage(vid, vid.width / 2, (vid.height / 2) - 100, 200, 200, 80, 140, 100, 100);
       };
       takeImage = function() {
         var canvas, uri;
@@ -67,7 +65,13 @@ define(["app/server", "app/pulse", "templates/index", "templates/image"], functi
           navigator.getUserMedia({
             video: true
           }, function(s) {
-            return requestAnimFrame(drawWebcam(s));
+            var canvas, ctx, url, vid;
+            vid = document.getElementById('myVideo');
+            url = window.URL.createObjectURL(s);
+            vid.src = url;
+            canvas = document.getElementById('myCanvas');
+            ctx = canvas.getContext('2d');
+            return drawWebcam(vid, ctx, 0, 0);
           }, function(e) {
             return console.log(e);
           });
