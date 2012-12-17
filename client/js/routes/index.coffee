@@ -38,39 +38,37 @@ define ["app/server", "app/pulse", "templates/index", "templates/image"], (serve
       requestAnimFrame ->
         drawWebcam vid, ctx
 
-      # santa
+      # face
+      ctx.drawImage vid, (vid.width/2), (vid.height/2)-100, 200, 200, 80, 140, 100, 100
+
+    drawSanta = (ctx) ->
       _img = new Image
       _img.onload = ->
         ctx.drawImage _img, 0, 0
       _img.src = "img/santa.png"
-
-      # face
-      ctx.drawImage vid, (vid.width/2), (vid.height/2)-100, 200, 200, 80, 140, 100, 100
-
 
     takeImage = ->
       canvas = document.getElementById "myCanvas"
       uri = canvas.toDataURL "image/png"
       chan.emit 'new', uri
 
+    $("#main").html indexTempl()
+    canvas = document.getElementById 'myCanvas'
+    ctx = canvas.getContext '2d'
+    drawSanta ctx
+        
     server.ready ->
       server.getImages (images) ->
         img = img.concat images
-        $("#main").html indexTempl()
 
         $("#grabButton").click takeImage
 
         navigator.getUserMedia
           video: true
         , (s) ->
-
           vid = document.getElementById 'myVideo'
           url = window.URL.createObjectURL s
           vid.src = url
-
-          canvas = document.getElementById 'myCanvas'
-          ctx = canvas.getContext '2d'
-
           drawWebcam vid, ctx, 0, 0
 
         , (e) -> 
